@@ -6,9 +6,13 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import { useUserLogin } from "@/components/store/useUserLogin";
 import { toast } from "react-toastify";
+import { isEmpty } from "lodash-es";
 
 function LandingPage() {
   const { setPhoneNumber } = useUserLogin();
+  const { phoneNumber } = useUserLogin();
+  const [User, setUser] = useState();
+  const [ownerId, setOwnerId] = useState();
 
   const router = useRouter();
   const handlePhoneNumberChange = (
@@ -17,35 +21,36 @@ function LandingPage() {
     setPhoneNumber(event.target.value);
   };
 
-  // const handleSubmit = async (e: any) => {
-  //   e.preventDefault();
-  //   result();
-  // };
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    result();
+  };
 
-  // const result = async () => {
-  //   try {
-  //     const config = {
-  //       method: "POST",
-  //       url: "https://api.hipal.life/v1/users/chef/Login?withBusinessId=false",
-  //       data: {
-  //         phone: phoneNumber,
-  //       },
-  //     };
+  const result = async () => {
+    try {
+      const config = {
+        method: "POST",
+        url: "https://api.hipal.life/v1/users/otp?clientRole=user",
+        data: {
+          phone: phoneNumber,
+        },
+      };
 
-  //     const user = await axios(config);
-  //     if (!isEmpty(user.data)) {
-  //       setUser(user.data);
-  //     }
-  //     if (user.status === 200) {
-  //       toast.success(`Hi ${user?.data?.name}`);
-  //       setBusinessId(user?.data?.customRole?.[0].businessId);
-  //     } else {
-  //       toast.error("Phone or Password invalid...!");
-  //     }
-  //   } catch (err: any) {
-  //     toast.error("Phone or Password invalid...!");
-  //   }
-  // };
+      const user = await axios(config);
+      if (!isEmpty(user.data)) {
+        setUser(user.data);
+      }
+      if (user.status === 200) {
+        router.push(`/${user?.data?.id}/home`);
+        setOwnerId(user?.data?.id);
+      } else {
+        alert("Phone or Password invalid...!");
+      }
+    } catch (err: any) {
+      alert("Phone or Password invalid...!");
+    }
+  };
+  console.log("user", User);
 
   return (
     <div className="grid bg-[#f5f5f5] my-auto min-h-screen place-items-center">
@@ -91,7 +96,10 @@ function LandingPage() {
           </div>
 
           <div className="flex justify-center mb-5">
-            <button className="on_active_bounce bg-[#50A466] border rounded-full w-[20.5rem] font-[600] py-[1.3rem] text-white text-[18px] leading-[1.15rem]">
+            <button
+              onClick={handleSubmit}
+              className="on_active_bounce bg-[#50A466] border rounded-full w-[20.5rem] font-[600] py-[1.3rem] text-white text-[18px] leading-[1.15rem]"
+            >
               Login
             </button>
           </div>
